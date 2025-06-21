@@ -1,8 +1,8 @@
 package com.ruoyi.project.system.domain;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.framework.aspectj.lang.annotation.Excel;
@@ -11,7 +11,7 @@ import com.ruoyi.framework.web.domain.BaseEntity;
 
 /**
  * 岗位表 sys_post
- * 
+ *
  * @author ruoyi
  */
 public class SysPost extends BaseEntity
@@ -105,7 +105,7 @@ public class SysPost extends BaseEntity
     {
         this.flag = flag;
     }
-    
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

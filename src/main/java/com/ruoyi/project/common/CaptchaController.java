@@ -3,9 +3,9 @@ package com.ruoyi.project.common;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.FastByteArrayOutputStream;
@@ -22,7 +22,7 @@ import com.ruoyi.project.system.service.ISysConfigService;
 
 /**
  * 验证码操作处理
- * 
+ *
  * @author ruoyi
  */
 @RestController
@@ -36,11 +36,11 @@ public class CaptchaController
 
     @Autowired
     private RedisCache redisCache;
-    
+
     // 验证码类型
     @Value("${ruoyi.captchaType}")
     private String captchaType;
-    
+
     @Autowired
     private ISysConfigService configService;
 
