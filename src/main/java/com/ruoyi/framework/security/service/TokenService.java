@@ -208,7 +208,7 @@ public class TokenService
     private Claims parseToken(String token)
     {
         return Jwts.parser()
-                .setSigningKey(secret)
+                .setSigningKey(getSecretKey())
                 .parseClaimsJws(token)
                 .getBody();
     }

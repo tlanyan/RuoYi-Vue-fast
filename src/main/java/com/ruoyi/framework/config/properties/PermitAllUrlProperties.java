@@ -45,13 +45,33 @@ public class PermitAllUrlProperties implements InitializingBean, ApplicationCont
 
             // 获取方法上边的注解 替代path variable 为 *
             Anonymous method = AnnotationUtils.findAnnotation(handlerMethod.getMethod(), Anonymous.class);
-            Optional.ofNullable(method).ifPresent(anonymous -> Objects.requireNonNull(info.getPatternsCondition().getPatterns())
-                    .forEach(url -> urls.add(RegExUtils.replaceAll(url, PATTERN, ASTERISK))));
+            Optional.ofNullable(method).ifPresent(anonymous -> {
+                // Spring Boot 3 compatibility: use PathPatternsCondition when PatternsCondition
+                // is null
+                if (info.getPatternsCondition() != null) {
+                    info.getPatternsCondition().getPatterns()
+                            .forEach(url -> urls.add(RegExUtils.replaceAll(url, PATTERN, ASTERISK)));
+                } else if (info.getPathPatternsCondition() != null) {
+                    info.getPathPatternsCondition().getPatterns()
+                            .forEach(pattern -> urls
+                                    .add(RegExUtils.replaceAll(pattern.getPatternString(), PATTERN, ASTERISK)));
+                }
+            });
 
             // 获取类上边的注解, 替代path variable 为 *
             Anonymous controller = AnnotationUtils.findAnnotation(handlerMethod.getBeanType(), Anonymous.class);
-            Optional.ofNullable(controller).ifPresent(anonymous -> Objects.requireNonNull(info.getPatternsCondition().getPatterns())
-                    .forEach(url -> urls.add(RegExUtils.replaceAll(url, PATTERN, ASTERISK))));
+            Optional.ofNullable(controller).ifPresent(anonymous -> {
+                // Spring Boot 3 compatibility: use PathPatternsCondition when PatternsCondition
+                // is null
+                if (info.getPatternsCondition() != null) {
+                    info.getPatternsCondition().getPatterns()
+                            .forEach(url -> urls.add(RegExUtils.replaceAll(url, PATTERN, ASTERISK)));
+                } else if (info.getPathPatternsCondition() != null) {
+                    info.getPathPatternsCondition().getPatterns()
+                            .forEach(pattern -> urls
+                                    .add(RegExUtils.replaceAll(pattern.getPatternString(), PATTERN, ASTERISK)));
+                }
+            });
         });
     }
 
