@@ -22,6 +22,9 @@ import eu.bitwalker.useragentutils.UserAgent;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 
 /**
  * token验证处理
@@ -40,6 +43,19 @@ public class TokenService
     // 令牌秘钥
     @Value("${token.secret}")
     private String secret;
+
+    // 缓存的密钥对象
+    private SecretKey secretKey;
+
+    /**
+     * 获取签名密钥（懒加载）
+     */
+    private SecretKey getSecretKey() {
+        if (secretKey == null) {
+            secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        }
+        return secretKey;
+    }
 
     // 令牌有效期（默认30分钟）
     @Value("${token.expireTime}")
@@ -179,7 +195,7 @@ public class TokenService
     {
         String token = Jwts.builder()
                 .setClaims(claims)
-                .signWith(SignatureAlgorithm.HS512, secret).compact();
+                .signWith(getSecretKey(), SignatureAlgorithm.HS512).compact();
         return token;
     }
 
