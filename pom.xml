@@ -5,7 +5,7 @@
 
     <groupId>com.ruoyi</groupId>
     <artifactId>ruoyi</artifactId>
-    <version>3.9.0</version>
+    <version>3.9.1</version>
     <packaging>jar</packaging>
 
     <name>ruoyi</name>
@@ -28,13 +28,13 @@
         <fastjson.version>2.0.60</fastjson.version>
         <druid.version>1.2.27</druid.version>
         <commons.io.version>2.21.0</commons.io.version>
-        <bitwalker.version>1.21</bitwalker.version>
+        <yauaa.version>7.32.0</yauaa.version>
         <jwt.version>0.11.5</jwt.version>
         <kaptcha.version>2.3.3</kaptcha.version>
         <springfox.version>3.0.0</springfox.version>
         <swagger.version>2.2.41</swagger.version>
         <poi.version>5.4.1</poi.version>
-        <oshi.version>6.8.3</oshi.version>
+        <oshi.version>6.9.1</oshi.version>
         <velocity.version>2.3</velocity.version>
         <!-- override dependency version -->
         <tomcat.version>11.0.14</tomcat.version>
@@ -137,9 +137,9 @@
 
         <!-- 解析客户端操作系统、浏览器等 -->
         <dependency>
-            <groupId>eu.bitwalker</groupId>
-            <artifactId>UserAgentUtils</artifactId>
-            <version>${bitwalker.version}</version>
+            <groupId>nl.basjes.parse.useragent</groupId>
+            <artifactId>yauaa</artifactId>
+            <version>${yauaa.version}</version>
         </dependency>
 
         <!-- 阿里JSON解析器 -->
