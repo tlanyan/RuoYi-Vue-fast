@@ -67,6 +67,8 @@ public class SysUser extends BaseEntity
     @Excel(name = "最后登录IP", type = Type.EXPORT)
     private String loginIp;
 
+    private String googleAuthSecret;
+
     /** 最后登录时间 */
     @Excel(name = "最后登录时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss", type = Type.EXPORT)
     private Date loginDate;
@@ -310,6 +312,16 @@ public class SysUser extends BaseEntity
     public void setRoleId(Long roleId)
     {
         this.roleId = roleId;
+    }
+
+    public String getGoogleAuthSecret()
+    {
+        return googleAuthSecret;
+    }
+
+    public void setGoogleAuthSecret(String googleAuthSecret)
+    {
+        this.googleAuthSecret = googleAuthSecret;
     }
 
     @Override

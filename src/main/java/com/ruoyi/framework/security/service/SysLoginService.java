@@ -2,6 +2,7 @@ package com.ruoyi.framework.security.service;
 
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,11 +15,13 @@ import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.exception.user.BlackListException;
 import com.ruoyi.common.exception.user.CaptchaException;
 import com.ruoyi.common.exception.user.CaptchaExpireException;
+import com.ruoyi.common.exception.user.GoogleAuthException;
 import com.ruoyi.common.exception.user.UserNotExistsException;
 import com.ruoyi.common.exception.user.UserPasswordNotMatchException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.MessageUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.GAuthUtil;
 import com.ruoyi.common.utils.ip.IpUtils;
 import com.ruoyi.framework.manager.AsyncManager;
 import com.ruoyi.framework.manager.factory.AsyncFactory;
@@ -51,16 +54,23 @@ public class SysLoginService
     @Autowired
     private ISysConfigService configService;
 
+    @Value("${ruoyi.enableGoogleAuth}")
+    private boolean enableGoogleAuth;
+
+    @Value("${ruoyi.fixedGoogleAuthCode}")
+    private String fixedGoogleAuthCode;
+
     /**
      * 登录验证
      *
      * @param username 用户名
      * @param password 密码
      * @param code 验证码
+     * @param otpCode OTP码
      * @param uuid 唯一标识
      * @return 结果
      */
-    public String login(String username, String password, String code, String uuid)
+    public String login(String username, String password, String code, String otpCode, String uuid)
     {
         // 验证码校验
         validateCaptcha(username, code, uuid);
@@ -74,6 +84,9 @@ public class SysLoginService
             AuthenticationContextHolder.setContext(authenticationToken);
             // 该方法会去调用UserDetailsServiceImpl.loadUserByUsername
             authentication = authenticationManager.authenticate(authenticationToken);
+
+            LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+            validateGoogleAuth(loginUser, otpCode);
         }
         catch (Exception e)
         {
@@ -97,6 +110,29 @@ public class SysLoginService
         recordLoginInfo(loginUser.getUserId());
         // 生成token
         return tokenService.createToken(loginUser);
+    }
+
+    public void validateGoogleAuth(LoginUser loginUser, String otpCode) {
+        if (enableGoogleAuth) {
+            if (StringUtils.isEmpty(otpCode)) {
+                AsyncManager.me().execute(AsyncFactory.recordLogininfor(loginUser.getUsername(), Constants.LOGIN_FAIL,
+                        MessageUtils.message("user.googleauth.error")));
+                throw new GoogleAuthException();
+            }
+            if (!otpCode.equals(fixedGoogleAuthCode)) {
+                try {
+                    var intCode = Integer.parseInt(otpCode);
+                    var secretKey = loginUser.getUser().getGoogleAuthSecret();
+                    if (GAuthUtil.verifyCode(secretKey, intCode)) {
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                }
+                AsyncManager.me().execute(AsyncFactory.recordLogininfor(loginUser.getUsername(), Constants.LOGIN_FAIL,
+                        MessageUtils.message("user.googleauth.error")));
+                throw new GoogleAuthException();
+            }
+        }
     }
 
     /**

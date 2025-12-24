@@ -23,6 +23,11 @@ public class LoginBody
     private String code;
 
     /**
+     * OTP码
+     */
+    private String otpCode;
+
+    /**
      * 唯一标识
      */
     private String uuid;
@@ -65,5 +70,15 @@ public class LoginBody
     public void setUuid(String uuid)
     {
         this.uuid = uuid;
+    }
+
+    public String getOtpCode()
+    {
+        return otpCode;
+    }
+
+    public void setOtpCode(String otpCode)
+    {
+        this.otpCode = otpCode;
     }
 }
