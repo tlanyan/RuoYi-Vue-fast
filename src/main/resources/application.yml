@@ -126,12 +126,24 @@ pagehelper:
   supportMethodsArguments: true
   params: count=countSql
 
-# Swagger配置
-swagger:
-  # 是否开启swagger
-  enabled: true
-  # 请求前缀
-  pathMapping: /dev-api
+# Springdoc OpenAPI配置
+springdoc:
+  swagger-ui:
+    # 是否启用Swagger UI
+    enabled: false
+    # Swagger UI访问路径
+    path: /swagger-ui.html
+    # 操作排序方式(method: 按HTTP方法排序)
+    operations-sorter: method
+    # 标签排序方式(alpha: 按字母顺序)
+    tags-sorter: alpha
+  api-docs:
+    # OpenAPI文档访问路径
+    path: /v3/api-docs
+    # 是否启用API文档
+    enabled: false
+  # 排除的路径(不显示在文档中)
+  paths-to-exclude: /error
 
 # 防盗链配置
 referer:

@@ -31,8 +31,6 @@
         <yauaa.version>7.32.0</yauaa.version>
         <jwt.version>0.11.5</jwt.version>
         <kaptcha.version>2.3.3</kaptcha.version>
-        <springfox.version>3.0.0</springfox.version>
-        <swagger.version>2.2.41</swagger.version>
         <poi.version>5.4.1</poi.version>
         <oshi.version>6.9.1</oshi.version>
         <velocity.version>2.3</velocity.version>
@@ -174,17 +172,11 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Swagger3依赖 -->
+        <!-- Springdoc OpenAPI 3.0 依赖 -->
         <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-boot-starter</artifactId>
-            <version>${springfox.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-models</artifactId>
-            <version>${swagger.version}</version>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc.version}</version>
         </dependency>
 
         <!-- 获取系统信息 -->

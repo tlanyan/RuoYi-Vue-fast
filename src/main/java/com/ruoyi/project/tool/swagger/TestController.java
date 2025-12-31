@@ -15,19 +15,17 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.framework.web.controller.BaseController;
 import com.ruoyi.framework.web.domain.R;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * swagger 用户测试方法
- * 
+ *
  * @author ruoyi
  */
-@Api("用户信息管理")
+@Tag(name = "用户信息管理", description = "用户信息管理接口")
 @RestController
 @RequestMapping("/test/user")
 public class TestController extends BaseController
@@ -38,7 +36,7 @@ public class TestController extends BaseController
         users.put(2, new UserEntity(2, "ry", "admin123", "15666666666"));
     }
 
-    @ApiOperation("获取用户列表")
+    @Operation(summary = "获取用户列表")
     @GetMapping("/list")
     public R<List<UserEntity>> userList()
     {
@@ -46,10 +44,11 @@ public class TestController extends BaseController
         return R.ok(userList);
     }
 
-    @ApiOperation("获取用户详细")
-    @ApiImplicitParam(name = "userId", value = "用户ID", required = true, dataType = "int", paramType = "path", dataTypeClass = Integer.class)
+    @Operation(summary = "获取用户详细", description = "根据用户ID获取用户详细信息")
     @GetMapping("/{userId}")
-    public R<UserEntity> getUser(@PathVariable Integer userId)
+    public R<UserEntity> getUser(
+            @Parameter(description = "用户ID", required = true)
+            @PathVariable Integer userId)
     {
         if (!users.isEmpty() && users.containsKey(userId))
         {
@@ -61,13 +60,7 @@ public class TestController extends BaseController
         }
     }
 
-    @ApiOperation("新增用户")
-    @ApiImplicitParams({
-        @ApiImplicitParam(name = "userId", value = "用户id", dataType = "Integer", dataTypeClass = Integer.class),
-        @ApiImplicitParam(name = "username", value = "用户名称", dataType = "String", dataTypeClass = String.class),
-        @ApiImplicitParam(name = "password", value = "用户密码", dataType = "String", dataTypeClass = String.class),
-        @ApiImplicitParam(name = "mobile", value = "用户手机", dataType = "String", dataTypeClass = String.class)
-    })
+    @Operation(summary = "新增用户", description = "创建新的用户")
     @PostMapping("/save")
     public R<String> save(UserEntity user)
     {
@@ -79,7 +72,7 @@ public class TestController extends BaseController
         return R.ok();
     }
 
-    @ApiOperation("更新用户")
+    @Operation(summary = "更新用户", description = "更新用户信息")
     @PutMapping("/update")
     public R<String> update(@RequestBody UserEntity user)
     {
@@ -96,10 +89,11 @@ public class TestController extends BaseController
         return R.ok();
     }
 
-    @ApiOperation("删除用户信息")
-    @ApiImplicitParam(name = "userId", value = "用户ID", required = true, dataType = "int", paramType = "path", dataTypeClass = Integer.class)
+    @Operation(summary = "删除用户信息", description = "根据用户ID删除用户")
     @DeleteMapping("/{userId}")
-    public R<String> delete(@PathVariable Integer userId)
+    public R<String> delete(
+            @Parameter(description = "用户ID", required = true)
+            @PathVariable Integer userId)
     {
         if (!users.isEmpty() && users.containsKey(userId))
         {
@@ -113,19 +107,19 @@ public class TestController extends BaseController
     }
 }
 
-@ApiModel(value = "UserEntity", description = "用户实体")
+@Schema(name = "UserEntity", description = "用户实体")
 class UserEntity
 {
-    @ApiModelProperty("用户ID")
+    @Schema(description = "用户ID", example = "1")
     private Integer userId;
 
-    @ApiModelProperty("用户名称")
+    @Schema(description = "用户名称", example = "admin")
     private String username;
 
-    @ApiModelProperty("用户密码")
+    @Schema(description = "用户密码", example = "admin123")
     private String password;
 
-    @ApiModelProperty("用户手机")
+    @Schema(description = "用户手机", example = "15888888888")
     private String mobile;
 
     public UserEntity()
