@@ -39,7 +39,7 @@ server:
 # 日志配置
 logging:
   level:
-    com.ruoyi: debug
+    com.ruoyi: info
     org.springframework: warn
 
 # 用户配置
@@ -107,9 +107,9 @@ token:
   # 令牌自定义标识
   header: Authorization
   # 令牌密钥
-  secret: abcdefghijklmnopqrstuvwxyz
+  secret: xxdadsfoeadswea098dsdudddeasfdasdfasddfasfdasfK8mN3pQ7rT2vX9zA5cF1hJ6
   # 令牌有效期（默认30分钟）
-  expireTime: 30
+  expireTime: 1800
 
 # MyBatis配置
 mybatis:
