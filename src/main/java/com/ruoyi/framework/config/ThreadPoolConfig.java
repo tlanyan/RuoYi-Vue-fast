@@ -25,26 +25,39 @@ public class ThreadPoolConfig
     private int corePoolSize = 50;
 
     // 最大可创建的线程数
-    private int maxPoolSize = 200;
+    // private int maxPoolSize = 200;
 
     // 队列最大长度
-    private int queueCapacity = 1000;
+    // private int queueCapacity = 1000;
 
     // 线程池维护线程所允许的空闲时间
-    private int keepAliveSeconds = 300;
+    // private int keepAliveSeconds = 300;
 
-    @Bean(name = "threadPoolTaskExecutor")
-    public ThreadPoolTaskExecutor threadPoolTaskExecutor()
-    {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setMaxPoolSize(maxPoolSize);
-        executor.setCorePoolSize(corePoolSize);
-        executor.setQueueCapacity(queueCapacity);
-        executor.setKeepAliveSeconds(keepAliveSeconds);
-        // 线程池对拒绝任务(无线程可用)的处理策略
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        return executor;
-    }
+    /**
+     * 传统平台线程池 - 备用
+     *
+     * 注意：项目已启用虚拟线程(spring.threads.virtual.enabled=true)，
+     *
+     * @Async 任务统一使用 virtualTaskExecutor 执行。
+     *
+     *        此线程池目前未被使用，仅作为以下场景的回退方案保留：
+     *        1. CPU密集型计算任务（虚拟线程在此场景无优势）
+     *        2. 需要严格控制并发数的场景
+     *
+     *        使用方式：@Async("threadPoolTaskExecutor")
+     */
+    // @Bean(name = "threadPoolTaskExecutor")
+    // public ThreadPoolTaskExecutor threadPoolTaskExecutor()
+    // {
+    //     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    //     executor.setMaxPoolSize(maxPoolSize);
+    //     executor.setCorePoolSize(corePoolSize);
+    //     executor.setQueueCapacity(queueCapacity);
+    //     executor.setKeepAliveSeconds(keepAliveSeconds);
+    //     // 线程池对拒绝任务(无线程可用)的处理策略
+    //     executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+    //     return executor;
+    // }
 
     /**
      * 虚拟线程执行器 (Java 21+)
