@@ -52,6 +52,11 @@ user:
 
 # Spring配置
 spring:
+  # 虚拟线程配置 (Java 21+, Spring Boot 3.2+)
+  # 启用后，Tomcat将使用虚拟线程处理HTTP请求，大幅提升并发性能
+  threads:
+    virtual:
+      enabled: true
   # 资源信息
   messages:
     # 国际化资源文件路径
