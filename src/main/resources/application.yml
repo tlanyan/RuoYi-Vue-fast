@@ -109,6 +109,15 @@ spring:
     baseline-on-migrate: true
     baseline-version: 0
 
+  # quartz
+  quartz:
+    auto-startup: false
+    properties:
+      org:
+        quartz:
+          threadPool:
+            threadCount: 1
+
 # token配置
 token:
   # 令牌自定义标识
