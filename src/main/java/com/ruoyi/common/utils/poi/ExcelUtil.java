@@ -107,6 +107,11 @@ public class ExcelUtil<T>
     public Map<String, String> sysDictMap = new HashMap<String, String>();
 
     /**
+     * 单元格样式缓存
+     */
+    private Map<String, CellStyle> cellStyleCache = new HashMap<String, CellStyle>();
+
+    /**
      * Excel sheet最大行数，默认65536
      */
     public static final int sheetSize = 65536;
@@ -578,6 +583,117 @@ public class ExcelUtil<T>
         response.setCharacterEncoding("utf-8");
         this.init(list, sheetName, title, Type.EXPORT);
         exportExcel(response);
+    }
+
+    /**
+     * 多 Sheet 导出 —— 将多个不同类型的数据集合写入同一 Excel，直接输出到 HttpServletResponse
+     *
+     * @param response HTTP 响应
+     * @param sheets   Sheet 描述列表
+     */
+    public static void exportMultiSheet(HttpServletResponse response, List<ExcelSheet<?>> sheets)
+    {
+        if (sheets == null || sheets.isEmpty())
+        {
+            return;
+        }
+        SXSSFWorkbook wb = buildWorkbook(sheets);
+        try
+        {
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setCharacterEncoding("utf-8");
+            wb.write(response.getOutputStream());
+        }
+        catch (Exception e)
+        {
+            log.error("多Sheet导出Excel异常{}", e.getMessage());
+        }
+        finally
+        {
+            IOUtils.closeQuietly(wb);
+        }
+    }
+
+    /**
+     * 多 Sheet 导出 —— 将多个不同类型的数据集合写入同一 Excel，生成文件并返回下载地址
+     *
+     * @param sheets Sheet 描述列表
+     * @return AjaxResult（含文件下载地址）
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static AjaxResult exportMultiSheet(List<ExcelSheet<?>> sheets)
+    {
+        if (sheets == null || sheets.isEmpty())
+        {
+            return AjaxResult.error("导出数据不能为空");
+        }
+        SXSSFWorkbook wb = buildWorkbook(sheets);
+        OutputStream out = null;
+        try
+        {
+            ExcelUtil firstUtil = new ExcelUtil(sheets.get(0).getClazz());
+            String filename = firstUtil.encodingFilename(sheets.get(0).getSheetName());
+            out = new FileOutputStream(firstUtil.getAbsoluteFile(filename));
+            wb.write(out);
+            return AjaxResult.success(filename);
+        }
+        catch (Exception e)
+        {
+            log.error("多Sheet导出Excel异常{}", e.getMessage());
+            throw new UtilException("导出Excel失败，请联系网站管理员！");
+        }
+        finally
+        {
+            IOUtils.closeQuietly(wb);
+            IOUtils.closeQuietly(out);
+        }
+    }
+
+    /**
+     * 构建多 Sheet Workbook —— 创建 SXSSFWorkbook 并将所有 Sheet 数据写入
+     *
+     * @param sheets Sheet 描述列表
+     * @return 已写入所有 Sheet 数据的 SXSSFWorkbook
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private static SXSSFWorkbook buildWorkbook(List<ExcelSheet<?>> sheets)
+    {
+        SXSSFWorkbook wb = new SXSSFWorkbook(500);
+        for (ExcelSheet<?> excelSheet : sheets)
+        {
+            ExcelUtil util = new ExcelUtil(excelSheet.getClazz());
+            util.initWithWorkbook(wb, excelSheet.getList(), excelSheet.getSheetName(), excelSheet.getTitle());
+            util.writeSheet();
+        }
+        return wb;
+    }
+
+    /**
+     * 使用外部传入的 Workbook 初始化（多 Sheet 导出专用）
+     * 与 init() 的区别：不新建 Workbook，而是在已有 wb 上追加新 Sheet
+     *
+     * @param wb        已有工作簿
+     * @param list      数据集合
+     * @param sheetName Sheet 名称
+     * @param title     大标题（可为空）
+     */
+    public void initWithWorkbook(SXSSFWorkbook wb, List<T> list, String sheetName, String title)
+    {
+        if (list == null)
+        {
+            list = new ArrayList<T>();
+        }
+        this.list      = list;
+        this.sheetName = sheetName;
+        this.title     = title != null ? title : "";
+        this.type      = Type.EXPORT;
+        this.rownum    = 0;
+        this.wb        = wb;
+        this.sheet     = wb.createSheet(sheetName);
+        createExcelField();
+        this.styles    = createStyles(wb);
+        createTitle();
+        createSubHead();
     }
 
     /**
@@ -1153,7 +1269,7 @@ public class ExcelUtil<T>
                 String dictType = attr.dictType();
                 if (StringUtils.isNotEmpty(dateFormat) && StringUtils.isNotNull(value))
                 {
-                    cell.getCellStyle().setDataFormat(this.wb.getCreationHelper().createDataFormat().getFormat(dateFormat));
+                    cell.setCellStyle(createCellStyle(cell.getCellStyle(), dateFormat));
                     cell.setCellValue(parseDateToStr(dateFormat, value));
                 }
                 else if (StringUtils.isNotEmpty(readConverterExp) && StringUtils.isNotNull(value))
@@ -1190,6 +1306,28 @@ public class ExcelUtil<T>
             log.error("导出Excel失败{}", e);
         }
         return cell;
+    }
+
+    /**
+     * 使用自定义格式，同时避免样式污染
+     * 
+     * @param cellStyle 从此样式复制
+     * @param format 格式匹配的字符串
+     * @return 格式化后CellStyle对象
+     */
+    private CellStyle createCellStyle(CellStyle cellStyle, String format)
+    {
+        String key = cellStyle.getIndex() + "|" + format;
+        CellStyle cached = cellStyleCache.get(key);
+        if (cached != null)
+        {
+            return cached;
+        }
+        CellStyle style = wb.createCellStyle();
+        style.cloneStyleFrom(cellStyle);
+        style.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat(format));
+        cellStyleCache.put(key, style);
+        return style;
     }
 
     /**

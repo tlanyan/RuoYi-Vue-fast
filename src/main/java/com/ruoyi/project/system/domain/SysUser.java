@@ -5,7 +5,9 @@ import java.util.List;
 import jakarta.validation.constraints.*;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.xss.Xss;
 import com.ruoyi.framework.aspectj.lang.annotation.Excel;
 import com.ruoyi.framework.aspectj.lang.annotation.Excel.ColumnType;
@@ -70,6 +72,7 @@ public class SysUser extends BaseEntity
     private String googleAuthSecret;
 
     /** 最后登录时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "最后登录时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss", type = Type.EXPORT)
     private Date loginDate;
 
@@ -117,12 +120,7 @@ public class SysUser extends BaseEntity
 
     public boolean isAdmin()
     {
-        return isAdmin(this.userId);
-    }
-
-    public static boolean isAdmin(Long userId)
-    {
-        return userId != null && 1L == userId;
+        return SecurityUtils.isAdmin(this.userId);
     }
 
     public Long getDeptId()

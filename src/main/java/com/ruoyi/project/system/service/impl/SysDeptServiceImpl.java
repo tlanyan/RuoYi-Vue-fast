@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.common.exception.ServiceException;
@@ -16,7 +17,6 @@ import com.ruoyi.framework.aspectj.lang.annotation.DataScope;
 import com.ruoyi.framework.web.domain.TreeSelect;
 import com.ruoyi.project.system.domain.SysDept;
 import com.ruoyi.project.system.domain.SysRole;
-import com.ruoyi.project.system.domain.SysUser;
 import com.ruoyi.project.system.mapper.SysDeptMapper;
 import com.ruoyi.project.system.mapper.SysRoleMapper;
 import com.ruoyi.project.system.service.ISysDeptService;
@@ -190,7 +190,7 @@ public class SysDeptServiceImpl implements ISysDeptService
     @Override
     public void checkDeptDataScope(Long deptId)
     {
-        if (!SysUser.isAdmin(SecurityUtils.getUserId()) && StringUtils.isNotNull(deptId))
+        if (!SecurityUtils.isAdmin() && StringUtils.isNotNull(deptId))
         {
             SysDept dept = new SysDept();
             dept.setDeptId(deptId);
@@ -334,5 +334,31 @@ public class SysDeptServiceImpl implements ISysDeptService
     private boolean hasChild(List<SysDept> list, SysDept t)
     {
         return getChildList(list, t).size() > 0 ? true : false;
+    }
+
+    /**
+     * 保存部门排序
+     *
+     * @param deptIds 部门ID数组
+     * @param orderNums 排序数组
+     */
+    @Override
+    @Transactional
+    public void updateDeptSort(String[] deptIds, String[] orderNums)
+    {
+        try
+        {
+            for (int i = 0; i < deptIds.length; i++)
+            {
+                SysDept dept = new SysDept();
+                dept.setDeptId(Convert.toLong(deptIds[i]));
+                dept.setOrderNum(Convert.toInt(orderNums[i]));
+                deptMapper.updateDeptSort(dept);
+            }
+        }
+        catch (Exception e)
+        {
+            throw new ServiceException("保存排序异常，请联系管理员");
+        }
     }
 }
